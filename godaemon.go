@@ -2,7 +2,6 @@ package godaemon
 
 import (
   "errors"
-  "flag"
   "fmt"
   "io/ioutil"
   "log"
@@ -21,6 +20,19 @@ type Daemon struct {
   PidFile       string
   LogFile       string
   RedirectStrFd bool
+}
+
+func getPidFromFile(pidFile string) int {
+  pidStr, err := ioutil.ReadFile(pidFile)
+  if err != nil {
+    log.Fatalf("Unable to read file: %v", err)
+  }
+  pid, err := strconv.Atoi(string(pidStr))
+  if err != nil {
+    log.Fatalf("Wrong pid process number: %v", err)
+  }
+
+  return pid
 }
 
 func redirectStrFd() {
@@ -57,21 +69,33 @@ func (daemon *Daemon) run() {
   }
 }
 
+func (daemon *Daemon) status() {
+  if _, err := os.Stat(daemon.PidFile); errors.Is(err, os.ErrNotExist) {
+    fmt.Println("The", daemon.Name, "is stopped...")
+    os.Exit(0)
+  }
+
+  pid := getPidFromFile(daemon.PidFile)
+
+  process, err := os.FindProcess(int(pid))
+  if err != nil {
+    fmt.Println("Failed to find process:", err)
+  } else {
+    if err := process.Signal(syscall.Signal(0)); err != nil {
+	    fmt.Println("Process.Signal on pid", pid, "returned:", err)
+	  } else {
+	    fmt.Println("The", daemon.Name, "is running...")
+    }
+  }
+}
+
 func (daemon *Daemon) stop() {
   if _, err := os.Stat(daemon.PidFile); errors.Is(err, os.ErrNotExist) {
     fmt.Println("The", daemon.Name, "is already stopped...")
     os.Exit(0)
   }
 
-  pidStr, err := ioutil.ReadFile(daemon.PidFile)
-  if err != nil {
-    log.Fatalf("unable to read file: %v", err)
-  }
-
-  pid, err := strconv.Atoi(string(pidStr))
-  if err != nil {
-    log.Fatalf("Wrong pid process number: %v", err)
-  }
+  pid := getPidFromFile(daemon.PidFile)
 
   if err := syscall.Kill(pid, syscall.SIGHUP); err != nil {
     log.Fatalf("Unable to kill the process %d: %v", pid, err)
@@ -123,12 +147,6 @@ func (daemon *Daemon) start() {
 
 func (daemon *Daemon) Daemonize(worker fn) {
 
-  startCmd := flag.NewFlagSet("start", flag.ExitOnError)
-  stopCmd := flag.NewFlagSet("stop", flag.ExitOnError)
-  restartCmd := flag.NewFlagSet("restart", flag.ExitOnError)
-  runCmd := flag.NewFlagSet("run", flag.ExitOnError)
-  // statusCmd := flag.NewFlagSet("status", flag.ExitOnError)
-
   if len(os.Args) == 1 {
     fmt.Println("Usage: Expected 'start', 'stop', 'restart' or 'run' commands")
     os.Exit(0)
@@ -136,24 +154,20 @@ func (daemon *Daemon) Daemonize(worker fn) {
 
   switch os.Args[1] {
   case "run":
-    runCmd.Parse(os.Args[2:])
     daemon.run()
     worker()
   case "start":
-    startCmd.Parse(os.Args[2:])
     daemon.start()
   case "stop":
-    stopCmd.Parse(os.Args[2:])
     daemon.stop()
-    os.Exit(0)
   case "restart":
-    restartCmd.Parse(os.Args[2:])
     daemon.stop()
     time.Sleep(1 * time.Second)
     daemon.start()
+  case "status":
+    daemon.status()
   default:
     fmt.Println("Usage: Expected 'start', 'stop', 'restart' or 'run' commands")
-    os.Exit(0)
   }
 }
 
