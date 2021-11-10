@@ -22,7 +22,7 @@ func main() {
   // daemon.Name = "test"
   // daemon.PidFile = "test.pid"
   // daemon.LogFile = "test.log"
-  // daemon.RedirectStrFileDescriptors = true
+  // daemon.RedirectStrFd = true
   daemon.Daemonize(func() {
     fmt.Println("Start...")
     for {
