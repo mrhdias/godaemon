@@ -25,11 +25,11 @@ type Daemon struct {
 func getPidFromFile(pidFile string) int {
   pidStr, err := ioutil.ReadFile(pidFile)
   if err != nil {
-    log.Fatalf("Unable to read file: %v", err)
+    log.Fatalln("Unable to read file:", err)
   }
   pid, err := strconv.Atoi(string(pidStr))
   if err != nil {
-    log.Fatalf("Wrong pid process number: %v", err)
+    log.Fatalln("Wrong pid process number:", err)
   }
 
   return pid
@@ -57,7 +57,7 @@ func (daemon *Daemon) run() {
 
   logfile, err := os.OpenFile(daemon.LogFile, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
   if err != nil {
-    log.Fatalf("Error opening file: %v", err)
+    log.Fatalln("Error opening file:", err)
   }
   defer logfile.Close()
 
@@ -98,11 +98,11 @@ func (daemon *Daemon) stop() {
   pid := getPidFromFile(daemon.PidFile)
 
   if err := syscall.Kill(pid, syscall.SIGHUP); err != nil {
-    log.Fatalf("Unable to kill the process %d: %v", pid, err)
+    log.Fatalf("Unable to kill the process %d: %v\n", pid, err)
   }
 
   if err := os.Remove(daemon.PidFile); err != nil {
-    log.Fatalf("Unable to delete the file: %v", err)
+    log.Fatalf("Unable to delete the file: %v\n", err)
   }
 
   fmt.Println("The", daemon.Name, "was successfully stopped.")
