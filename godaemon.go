@@ -125,6 +125,11 @@ func (daemon *Daemon) Daemonize(worker fn) {
 	restartCmd := flag.NewFlagSet("restart", flag.ExitOnError)
 	runCmd := flag.NewFlagSet("run", flag.ExitOnError)
 
+	if len(os.Args) == 1 {
+		fmt.Println("Usage: Expected 'start', 'stop', 'restart' or 'run' commands")
+		os.Exit(0)
+	}
+
 	switch os.Args[1] {
 	case "run":
 		runCmd.Parse(os.Args[2:])
@@ -143,8 +148,8 @@ func (daemon *Daemon) Daemonize(worker fn) {
 		time.Sleep(1 * time.Second)
 		daemon.start()
 	default:
-		fmt.Println("Expected 'start', 'stop' or 'restart' commands")
-		os.Exit(1)
+		fmt.Println("Usage: Expected 'start', 'stop', 'restart' or 'run' commands")
+		os.Exit(0)
 	}
 }
 
