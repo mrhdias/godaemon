@@ -17,10 +17,21 @@ import (
 type fn func()
 
 type Daemon struct {
-  Name                       string
-  PidFile                    string
-  LogFile                    string
-  RedirectStrFileDescriptors bool
+  Name          string
+  PidFile       string
+  LogFile       string
+  RedirectStrFd bool
+}
+
+func redirectStrFd() {
+	file, err := os.OpenFile("/dev/null", os.O_RDWR, 0)
+	if err != nil {
+		log.Fatalln("Failed to open /dev/null:", err)
+	}
+	syscall.Dup2(int(file.Fd()), int(os.Stdin.Fd()))
+	syscall.Dup2(int(file.Fd()), int(os.Stdout.Fd()))
+	syscall.Dup2(int(file.Fd()), int(os.Stderr.Fd()))
+	file.Close()
 }
 
 func (daemon *Daemon) run() {
@@ -103,15 +114,8 @@ func (daemon *Daemon) start() {
     if _, err := syscall.Setsid(); err != nil {
       log.Fatalln("Failed to create new session:", err)
     }
-    if daemon.RedirectStrFileDescriptors {
-      file, err := os.OpenFile("/dev/null", os.O_RDWR, 0)
-      if err != nil {
-        log.Fatalln("Failed to open /dev/null:", err)
-      }
-      syscall.Dup2(int(file.Fd()), int(os.Stdin.Fd()))
-      syscall.Dup2(int(file.Fd()), int(os.Stdout.Fd()))
-      syscall.Dup2(int(file.Fd()), int(os.Stderr.Fd()))
-      file.Close()
+    if daemon.RedirectStrFd {
+      redirectStrFd()
     }
   }
 }
@@ -157,6 +161,6 @@ func New() Daemon {
   daemon.Name = filepath.Base(os.Args[0])
   daemon.PidFile = fmt.Sprintf("%s.pid", daemon.Name)
   daemon.LogFile = fmt.Sprintf("%s.log", daemon.Name)
-  daemon.RedirectStrFileDescriptors = true
+  daemon.RedirectStrFd = true
   return *daemon
 }
