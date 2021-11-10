@@ -10,14 +10,19 @@ A simple package to daemonize Go applications.
 package main
 
 import (
-	"fmt"
-	"time"
+  "fmt"
+  "time"
  
-	"github.com/mrhdias/godaemon"
+  "github.com/mrhdias/godaemon"
 )
 
 func main() {
   daemon := godaemon.New()
+  // Optional
+  // daemon.Name = "test"
+  // daemon.PidFile = "test.pid"
+  // daemon.LogFile = "test.log"
+  // daemon.RedirectStrFileDescriptors = true
   daemon.Daemonize(func() {
     fmt.Println("Start...")
     for {
