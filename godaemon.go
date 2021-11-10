@@ -18,7 +18,6 @@ type fn func()
 type Daemon struct {
   Name          string
   PidFile       string
-  LogFile       string
   RedirectStrFd bool
 }
 
@@ -54,15 +53,6 @@ func (daemon *Daemon) run() {
   }
 
   log.Println("The", daemon.Name, "was successfully started...")
-
-  logfile, err := os.OpenFile(daemon.LogFile, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
-  if err != nil {
-    log.Fatalln("Error opening file:", err)
-  }
-  defer logfile.Close()
-
-  log.SetOutput(logfile)
-  log.Println("Set log output to", daemon.LogFile, "file")
 
   if daemon.RedirectStrFd {
     redirectStrFd()
@@ -177,7 +167,6 @@ func New() Daemon {
   daemon := new(Daemon)
   daemon.Name = filepath.Base(os.Args[0])
   daemon.PidFile = fmt.Sprintf("%s.pid", daemon.Name)
-  daemon.LogFile = fmt.Sprintf("%s.log", daemon.Name)
   daemon.RedirectStrFd = true
   return *daemon
 }
