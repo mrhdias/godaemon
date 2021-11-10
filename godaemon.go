@@ -51,6 +51,10 @@ func (daemon *Daemon) run() {
 
   log.SetOutput(logfile)
   log.Println("Set log output to", daemon.LogFile, "file")
+
+  if daemon.RedirectStrFd {
+    redirectStrFd()
+  }
 }
 
 func (daemon *Daemon) stop() {
@@ -113,9 +117,6 @@ func (daemon *Daemon) start() {
     // I am the child, i.e. the daemon, start new session and detach from terminal
     if _, err := syscall.Setsid(); err != nil {
       log.Fatalln("Failed to create new session:", err)
-    }
-    if daemon.RedirectStrFd {
-      redirectStrFd()
     }
   }
 }
