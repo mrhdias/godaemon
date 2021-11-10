@@ -93,16 +93,14 @@ func (daemon *Daemon) start() {
       log.Fatalln("Failed to lookup binary:", err)
     }
     os.Args[1] = "run"
-    _, err = os.StartProcess(binary, os.Args, &os.ProcAttr{Dir: "", Env: nil,
-      Files: []*os.File{os.Stdin, os.Stdout, os.Stderr}, Sys: nil})
-    if err != nil {
+    if _, err = os.StartProcess(binary, os.Args, &os.ProcAttr{Dir: "", Env: nil,
+      Files: []*os.File{os.Stdin, os.Stdout, os.Stderr}, Sys: nil}); err != nil {
       log.Fatalln("Failed to start process:", err)
     }
     os.Exit(0)
   } else {
     // I am the child, i.e. the daemon, start new session and detach from terminal
-    _, err := syscall.Setsid()
-    if err != nil {
+    if _, err := syscall.Setsid(); err != nil {
       log.Fatalln("Failed to create new session:", err)
     }
     if daemon.RedirectStrFileDescriptors {
@@ -124,6 +122,7 @@ func (daemon *Daemon) Daemonize(worker fn) {
   stopCmd := flag.NewFlagSet("stop", flag.ExitOnError)
   restartCmd := flag.NewFlagSet("restart", flag.ExitOnError)
   runCmd := flag.NewFlagSet("run", flag.ExitOnError)
+  // statusCmd := flag.NewFlagSet("status", flag.ExitOnError)
 
   if len(os.Args) == 1 {
     fmt.Println("Usage: Expected 'start', 'stop', 'restart' or 'run' commands")
