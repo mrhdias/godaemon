@@ -24,14 +24,14 @@ type Daemon struct {
 }
 
 func redirectStrFd() {
-	file, err := os.OpenFile("/dev/null", os.O_RDWR, 0)
-	if err != nil {
-		log.Fatalln("Failed to open /dev/null:", err)
-	}
-	syscall.Dup2(int(file.Fd()), int(os.Stdin.Fd()))
-	syscall.Dup2(int(file.Fd()), int(os.Stdout.Fd()))
-	syscall.Dup2(int(file.Fd()), int(os.Stderr.Fd()))
-	file.Close()
+  file, err := os.OpenFile("/dev/null", os.O_RDWR, 0)
+  if err != nil {
+    log.Fatalln("Failed to open /dev/null:", err)
+  }
+  syscall.Dup2(int(file.Fd()), int(os.Stdin.Fd()))
+  syscall.Dup2(int(file.Fd()), int(os.Stdout.Fd()))
+  syscall.Dup2(int(file.Fd()), int(os.Stderr.Fd()))
+  file.Close()
 }
 
 func (daemon *Daemon) run() {
