@@ -148,7 +148,7 @@ func (daemon *Daemon) start() {
 func (daemon *Daemon) Daemonize(worker fn) {
 
   if len(os.Args) == 1 {
-    fmt.Println("Usage: Expected 'start', 'stop', 'restart' or 'run' commands")
+    fmt.Println("Usage:", daemon.Name, "start | stop | restart | status | run")
     os.Exit(0)
   }
 
@@ -167,7 +167,7 @@ func (daemon *Daemon) Daemonize(worker fn) {
   case "status":
     daemon.status()
   default:
-    fmt.Println("Usage: Expected 'start', 'stop', 'restart' or 'run' commands")
+    fmt.Println("Usage:", daemon.Name, "start | stop | restart | status | run")
   }
 }
 
