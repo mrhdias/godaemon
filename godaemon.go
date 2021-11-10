@@ -131,8 +131,8 @@ func (daemon *Daemon) start() {
     if err != nil {
       log.Fatalln("Failed to lookup binary:", err)
     }
-    os.Args[1] = "run"
-    if _, err = os.StartProcess(binary, os.Args, &os.ProcAttr{Dir: "", Env: nil,
+
+    if _, err = os.StartProcess(binary, []string{os.Args[0], "run", "daemon"}, &os.ProcAttr{Dir: "", Env: nil,
       Files: []*os.File{os.Stdin, os.Stdout, os.Stderr}, Sys: nil}); err != nil {
       log.Fatalln("Failed to start process:", err)
     }
@@ -154,12 +154,10 @@ func (daemon *Daemon) Daemonize(worker fn) {
 
   switch os.Args[1] {
   case "run":
-    daemon.run()
-    worker()
-    fmt.Println("The", daemon.Name, "finished...")
-    if err := os.Remove(daemon.PidFile); err != nil {
-      log.Fatalf("Unable to delete the file: %v\n", err)
+    if len(os.Args) == 3 && os.Args[2] == "daemon" {
+      daemon.run()
     }
+    worker()
   case "start":
     daemon.start()
   case "stop":
