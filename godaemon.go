@@ -156,6 +156,10 @@ func (daemon *Daemon) Daemonize(worker fn) {
   case "run":
     daemon.run()
     worker()
+    fmt.Println("The", daemon.Name, "finished...")
+    if err := os.Remove(daemon.PidFile); err != nil {
+      log.Fatalf("Unable to delete the file: %v\n", err)
+    }
   case "start":
     daemon.start()
   case "stop":
