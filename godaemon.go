@@ -91,7 +91,7 @@ func (daemon *Daemon) start() {
     os.Exit(0)
   }
 
-  // From https://github.com/golang/go/issues/227
+  // Borrow from https://github.com/golang/go/issues/227
   // short delay to avoid race condition between os.StartProcess and os.Exit
   // can be omitted if the work done above amounts to a sufficient delay
   // time.Sleep(1 * time.Second)
