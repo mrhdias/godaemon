@@ -21,6 +21,7 @@ func main() {
   // Optional
   // daemon.Name = "test"
   // daemon.PidFile = "test.pid"
+  // daemon.ChDir = "test"
   // daemon.RedirectStrFd = true
   
   // Optional
