@@ -23,10 +23,12 @@ func main() {
   // daemon.PidFile = "test.pid"
   // daemon.RedirectStrFd = true
   
+  // Optional
   daemon.OnStart = func() {
     fmt.Println("On Start...")
   }
   
+  // Optional
   daemon.OnStop = func() {
     fmt.Println("On Stop...")
   }
