@@ -22,8 +22,18 @@ func main() {
   // daemon.Name = "test"
   // daemon.PidFile = "test.pid"
   // daemon.RedirectStrFd = true
+  
+  daemon.OnStart = func() {
+    fmt.Println("On Start...")
+  }
+  
+  daemon.OnStop = func() {
+    fmt.Println("On Stop...")
+  }
+  
   daemon.Daemonize(func() {
-    fmt.Println("Start...")
+    // Deemon business logic starts here
+    fmt.Println("Daemonize my staff...")
     for {
       fmt.Println("Hello Again")
       time.Sleep(5 * time.Second)
