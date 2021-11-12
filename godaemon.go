@@ -18,6 +18,7 @@ type fn func()
 type Daemon struct {
   Name          string
   PidFile       string
+  ChDir         string
   RedirectStrFd bool
   OnStart       fn
   OnStop        fn
@@ -126,7 +127,7 @@ func (daemon *Daemon) start() {
       log.Fatalln("Failed to lookup binary:", err)
     }
 
-    if _, err = os.StartProcess(binary, []string{os.Args[0], "run", "daemon"}, &os.ProcAttr{Dir: "", Env: nil,
+    if _, err = os.StartProcess(binary, []string{os.Args[0], "run", "daemon"}, &os.ProcAttr{Dir: daemon.ChDir, Env: nil,
       Files: []*os.File{os.Stdin, os.Stdout, os.Stderr}, Sys: nil}); err != nil {
       log.Fatalln("Failed to start process:", err)
     }
@@ -172,6 +173,7 @@ func New() Daemon {
   daemon := new(Daemon)
   daemon.Name = filepath.Base(os.Args[0])
   daemon.PidFile = fmt.Sprintf("%s.pid", daemon.Name)
+  daemon.ChDir = ""
   daemon.RedirectStrFd = true
   daemon.OnStart = func() {}
   daemon.OnStop = func() {}
