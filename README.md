@@ -2,9 +2,9 @@
 A simple package to daemonize Go applications.
 
 ## Installation
-
-	go get github.com/mrhdias/godaemon
-
+```
+go get github.com/mrhdias/godaemon
+```
 ## Example
 ```go
 package main
@@ -42,4 +42,9 @@ func main() {
     }
   })
 }
+```
+## Test
+```
+go run test.go
+Usage: test start | stop | restart | status | run
 ```
