@@ -19,6 +19,8 @@ type Daemon struct {
   Name          string
   PidFile       string
   RedirectStrFd bool
+  OnStart       fn
+  OnStop        fn
 }
 
 func getPidFromFile(pidFile string) int {
@@ -85,6 +87,8 @@ func (daemon *Daemon) stop() {
     os.Exit(0)
   }
 
+  daemon.OnStop()
+
   pid := getPidFromFile(daemon.PidFile)
 
   if err := syscall.Kill(pid, syscall.SIGHUP); err != nil {
@@ -147,6 +151,7 @@ func (daemon *Daemon) Daemonize(worker fn) {
     if len(os.Args) == 3 && os.Args[2] == "daemon" {
       daemon.run()
     }
+    daemon.OnStart()
     worker()
   case "start":
     daemon.start()
