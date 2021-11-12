@@ -13,15 +13,13 @@ import (
   "time"
 )
 
-type fn func()
-
 type Daemon struct {
   Name          string
   PidFile       string
   ChDir         string
   RedirectStrFd bool
-  OnStart       fn
-  OnStop        fn
+  OnStart       func()
+  OnStop        func()
 }
 
 func getPidFromFile(pidFile string) int {
@@ -140,7 +138,7 @@ func (daemon *Daemon) start() {
   }
 }
 
-func (daemon *Daemon) Daemonize(worker fn) {
+func (daemon *Daemon) Daemonize(worker func()) {
 
   if len(os.Args) == 1 {
     fmt.Println("Usage:", daemon.Name, "start | stop | restart | status | run")
