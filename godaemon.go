@@ -173,5 +173,7 @@ func New() Daemon {
   daemon.Name = filepath.Base(os.Args[0])
   daemon.PidFile = fmt.Sprintf("%s.pid", daemon.Name)
   daemon.RedirectStrFd = true
+  daemon.OnStart = func() {}
+  daemon.OnStop = func() {}
   return *daemon
 }
