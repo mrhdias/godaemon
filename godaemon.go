@@ -75,9 +75,9 @@ func (daemon *Daemon) status() {
     fmt.Println("Failed to find process:", err)
   } else {
     if err := process.Signal(syscall.Signal(0)); err != nil {
-	    fmt.Println("Process.Signal on pid", pid, "returned:", err)
-	  } else {
-	    fmt.Println("The", daemon.Name, "is running...")
+      fmt.Println("Process.Signal on pid", pid, "returned:", err)
+    } else {
+      fmt.Println("The", daemon.Name, "is running...")
     }
   }
 }
