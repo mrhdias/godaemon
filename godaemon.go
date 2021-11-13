@@ -17,6 +17,7 @@ type Daemon struct {
   Name          string
   PidFile       string
   ChDir         string
+  Action        string
   RedirectStrFd bool
   OnStart       func()
   OnStop        func()
@@ -44,6 +45,14 @@ func redirectStrFd() {
   syscall.Dup2(int(file.Fd()), int(os.Stdout.Fd()))
   syscall.Dup2(int(file.Fd()), int(os.Stderr.Fd()))
   file.Close()
+}
+
+func (daemon *Daemon) clean() {
+  if err := os.Remove(daemon.PidFile); err != nil {
+    fmt.Printf("Unable to delete the file: %v\n", err)
+    os.Exit(0)
+  }
+  fmt.Println("The", daemon.Name, "was successfully ended.")
 }
 
 func (daemon *Daemon) run() {
@@ -138,13 +147,14 @@ func (daemon *Daemon) start() {
   }
 }
 
-func (daemon *Daemon) Daemonize(worker func()) {
+func (daemon *Daemon) Manager(worker func()) {
 
   if len(os.Args) == 1 {
     fmt.Println("Usage:", daemon.Name, "start | stop | restart | status | run")
     os.Exit(0)
   }
 
+  daemon.Action = os.Args[1]
   switch os.Args[1] {
   case "run":
     if len(os.Args) == 3 && os.Args[2] == "daemon" {
@@ -165,6 +175,7 @@ func (daemon *Daemon) Daemonize(worker func()) {
   default:
     fmt.Println("Usage:", daemon.Name, "start | stop | restart | status | run")
   }
+  daemon.clean()
 }
 
 func New() Daemon {
@@ -172,6 +183,7 @@ func New() Daemon {
   daemon.Name = filepath.Base(os.Args[0])
   daemon.PidFile = fmt.Sprintf("%s.pid", daemon.Name)
   daemon.ChDir = ""
+  daemon.Action = ""
   daemon.RedirectStrFd = true
   daemon.OnStart = func() {}
   daemon.OnStop = func() {}
