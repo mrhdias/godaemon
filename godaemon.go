@@ -51,10 +51,11 @@ func (daemon *Daemon) run() {
   fmt.Printf("pid: %d %s\n", os.Getpid(), daemon.PidFile)
 
   if err := os.WriteFile(daemon.PidFile, []byte(strconv.Itoa(os.Getpid())), 0644); err != nil {
-    log.Fatalln("Unable to write to file:", err)
+    fmt.Println("Unable to write to file:", err)
+    os.Exit(1)
   }
 
-  log.Println("The", daemon.Name, "was successfully started...")
+  fmt.Println("The", daemon.Name, "was successfully started...")
 
   if daemon.RedirectStrFd {
     redirectStrFd()
@@ -92,11 +93,13 @@ func (daemon *Daemon) stop() {
   pid := getPidFromFile(daemon.PidFile)
 
   if err := syscall.Kill(pid, syscall.SIGHUP); err != nil {
-    log.Fatalf("Unable to kill the process %d: %v\n", pid, err)
+    fmt.Printf("Unable to kill the process %d: %v\n", pid, err)
+    os.Exit(1)
   }
 
   if err := os.Remove(daemon.PidFile); err != nil {
-    log.Fatalf("Unable to delete the file: %v\n", err)
+    fmt.Printf("Unable to delete the file: %v\n", err)
+    os.Exit(1)
   }
 
   fmt.Println("The", daemon.Name, "was successfully stopped.")
@@ -116,25 +119,29 @@ func (daemon *Daemon) start() {
 
   if err := syscall.FcntlFlock(os.Stdout.Fd(), syscall.F_SETLKW, &syscall.Flock_t{
     Type: syscall.F_WRLCK, Whence: 0, Start: 0, Len: 0}); err != nil {
-    log.Fatalln("Failed to lock stdout:", err)
+    fmt.Println("Failed to lock stdout:", err)
+    os.Exit(1)
   }
 
   if os.Getppid() != 1 {
     // I am the parent, spawn child to run as daemon
     binary, err := exec.LookPath(os.Args[0])
     if err != nil {
-      log.Fatalln("Failed to lookup binary:", err)
+      fmt.Println("Failed to lookup binary:", err)
+      os.Exit(1)
     }
 
     if _, err = os.StartProcess(binary, []string{os.Args[0], "run", "daemon"}, &os.ProcAttr{Dir: daemon.ChDir, Env: nil,
       Files: []*os.File{os.Stdin, os.Stdout, os.Stderr}, Sys: nil}); err != nil {
-      log.Fatalln("Failed to start process:", err)
+      fmt.Println("Failed to start process:", err)
+      os.Exit(1)
     }
     os.Exit(0)
   } else {
     // I am the child, i.e. the daemon, start new session and detach from terminal
     if _, err := syscall.Setsid(); err != nil {
-      log.Fatalln("Failed to create new session:", err)
+      fmt.Println("Failed to create new session:", err)
+      os.Exit(1)
     }
   }
 }
