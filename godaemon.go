@@ -170,11 +170,6 @@ func (daemon *Daemon) Manager(worker func()) {
     fmt.Println("Usage:", daemon.Name, "start | stop | restart | status | run")
   }
 
-  if _, err := os.Stat(daemon.PidFile); err == nil {
-    if err := os.Remove(daemon.PidFile); err != nil {
-      log.Fatalf("Unable to delete the file: %v\n", err)
-    }
-  }
   os.Exit(0)
 }
 
