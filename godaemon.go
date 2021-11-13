@@ -190,7 +190,6 @@ func New() Daemon {
   daemon.Action = os.Args[1]
   daemon.PidFile = fmt.Sprintf("%s.pid", daemon.Name)
   daemon.ChDir = ""
-  daemon.Action = ""
   daemon.RedirectStrFd = true
   daemon.OnStart = func() {}
   daemon.OnStop = func() {}
