@@ -34,7 +34,7 @@ func main() {
     fmt.Println("On Stop...")
   }
   
-  daemon.Daemonize(func() {
+  daemon.Manager(func() {
     // Deemon business logic starts here
     fmt.Println("Daemonize my staff...")
     for {
