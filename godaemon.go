@@ -102,7 +102,7 @@ func (daemon *Daemon) stop() {
     os.Exit(1)
   }
 
-  fmt.Println("The", daemon.Name, "was successfully stopped.")
+  fmt.Printf("The '%s' was successfully started...\r\n", daemon.Name)
 }
 
 func (daemon *Daemon) start() {
