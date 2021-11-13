@@ -47,14 +47,6 @@ func redirectStrFd() {
   file.Close()
 }
 
-func (daemon *Daemon) clean() {
-  if err := os.Remove(daemon.PidFile); err != nil {
-    fmt.Printf("Unable to delete the file: %v\n", err)
-    os.Exit(0)
-  }
-  fmt.Println("The", daemon.Name, "was successfully ended.")
-}
-
 func (daemon *Daemon) run() {
   fmt.Printf("pid: %d %s\n", os.Getpid(), daemon.PidFile)
 
@@ -175,7 +167,13 @@ func (daemon *Daemon) Manager(worker func()) {
   default:
     fmt.Println("Usage:", daemon.Name, "start | stop | restart | status | run")
   }
-  daemon.clean()
+
+  if _, err := os.Stat(daemon.PidFile); err == nil {
+    if err := os.Remove(daemon.PidFile); err != nil {
+      log.Fatalf("Unable to delete the file: %v\n", err)
+    }
+  }
+  os.Exit(0)
 }
 
 func New() Daemon {
