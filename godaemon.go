@@ -153,6 +153,11 @@ func (daemon *Daemon) Manager(worker func()) {
   case "run":
     if len(os.Args) == 3 && os.Args[2] == "daemon" {
       daemon.run()
+    } else {
+      if _, err := os.Stat(daemon.PidFile); err == nil {
+        fmt.Println("The", daemon.Name, "is already running...")
+        os.Exit(0)
+      }
     }
     daemon.OnStart()
     worker()
