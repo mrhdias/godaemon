@@ -148,11 +148,6 @@ func (daemon *Daemon) start() {
 
 func (daemon *Daemon) Manager(worker func()) {
 
-  if len(os.Args) == 1 {
-    fmt.Println("Usage:", daemon.Name, "start | stop | restart | status | run")
-    os.Exit(0)
-  }
-
   daemon.Action = os.Args[1]
   switch os.Args[1] {
   case "run":
@@ -186,11 +181,19 @@ func (daemon *Daemon) Manager(worker func()) {
 func New() Daemon {
   daemon := new(Daemon)
   daemon.Name = filepath.Base(os.Args[0])
+
+  if len(os.Args) == 1 {
+    fmt.Println("Usage:", daemon.Name, "start | stop | restart | status | run")
+    os.Exit(0)
+  }
+
+  daemon.Action = os.Args[1]
   daemon.PidFile = fmt.Sprintf("%s.pid", daemon.Name)
   daemon.ChDir = ""
   daemon.Action = ""
   daemon.RedirectStrFd = true
   daemon.OnStart = func() {}
   daemon.OnStop = func() {}
+
   return *daemon
 }
