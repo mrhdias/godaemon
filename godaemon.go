@@ -147,8 +147,7 @@ func (daemon *Daemon) start() {
 
 func (daemon *Daemon) Manager(worker func()) {
 
-	daemon.Action = os.Args[1]
-	switch os.Args[1] {
+	switch daemon.Action {
 	case "run":
 		if len(os.Args) == 3 && os.Args[2] == "daemon" {
 			daemon.run()
@@ -186,7 +185,7 @@ func New() Daemon {
 		os.Exit(0)
 	}
 
-	daemon.Action = os.Args[1]
+	daemon.Action = os.Args[len(os.Args)-1]
 	daemon.PidFile = fmt.Sprintf("%s.pid", daemon.Name)
 	daemon.ChDir = ""
 	daemon.RedirectStrFd = true
