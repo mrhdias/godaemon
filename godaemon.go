@@ -8,6 +8,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strconv"
+	"strings"
 	"syscall"
 	"time"
 )
@@ -146,11 +147,13 @@ func (daemon *Daemon) start() {
 }
 
 func (daemon *Daemon) Manager(worker func()) {
+	if daemon.Action == "" {
+		daemon.Action = os.Args[1]
+	}
 
-	daemon.Action = os.Args[1]
-	switch os.Args[1] {
+	switch daemon.Action {
 	case "run":
-		if len(os.Args) == 3 && os.Args[2] == "daemon" {
+		if len(os.Args) == 3 && strings.EqualFold(os.Args[2], "daemon") {
 			daemon.run()
 		} else {
 			if _, err := os.Stat(daemon.PidFile); err == nil {
